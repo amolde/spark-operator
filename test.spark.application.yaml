@@ -1,0 +1,61 @@
+apiVersion: radanalytics.io/v1
+kind: SparkApplication
+metadata:
+  name: pyspark-pi
+spec:
+  type: Python
+  pythonVersion: "2"
+  mode: cluster
+  image: "gcr.io/spark-operator/spark-py:v2.4.5"
+  imagePullPolicy: Always
+  mainApplicationFile: local:///opt/spark/examples/src/main/python/pi.py
+  sparkVersion: "2.4.5"
+  restartPolicy:
+    type: OnFailure
+    onFailureRetries: 3
+    onFailureRetryInterval: 10
+    onSubmissionFailureRetries: 5
+    onSubmissionFailureRetryInterval: 20
+  driver:
+    cores: 1
+    coreLimit: "1200m"
+    memory: "512m"
+    labels:
+      version: 2.4.5
+    serviceAccount: spark
+  executor:
+    cores: 1
+    instances: 1
+    memory: "512m"
+    labels:
+      version: 2.4.5
+---
+apiVersion: v1
+kind: Route
+metadata:
+  name: spark-ui
+  labels:
+    app: spark
+spec:
+  to:
+    kind: Service
+    name: sparky-cluster-ui
+  tls:
+    termination: edge
+---
+apiVersion: radanalytics.io/v1
+kind: SparkApplication
+metadata:
+  name: ntlk-example
+spec:
+  image: jkremser/spark-operator:2.4.0-ntlk
+  type: Python
+  mainApplicationFile: local:///app.py
+  deps:
+    pyFiles:
+      - local:///deps.zip
+  driver:
+    cores: 0.4
+    coreLimit: 400m
+    memory: 600m
+  

@@ -17,7 +17,7 @@
 #   labels:
 #     foo: bar
 # ---
-apiVersion: radanalytics.io/v1
+apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
   name: my-example
@@ -25,7 +25,7 @@ spec:
   hadoopConf:
     "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.AssumedRoleCredentialProvider"
     "fs.s3a.assumed.role.arn": "arn:aws:iam::209299999084:role/ep-test-compute-node-role"
-  image: docker-registry.default.svc:5000/spark/spark-applications@sha256:896915efab30269c7a2a56b5800932f386e2c6828bcab166003e1d005ca0b47a
+  image: docker-registry.default.svc:5000/spark-operator/spark-applications:latest
   # image: quay.io/radanalyticsio/openshift-spark:2.4.5-2
   # image: "gcr.io/spark-operator/spark-py:v2.4.5"
   type: Python
@@ -33,18 +33,84 @@ spec:
   mode: cluster
   imagePullPolicy: Always
   # mainApplicationFile: local:///opt/spark/examples/src/main/python/pi.py
-  mainApplicationFile: s3a://nu-data-lake-test/spark-applications/s3.test.py
+  mainApplicationFile: s3a://nu-data-lake-test/spark-applications/admitware.s3.test.py
+  sparkVersion: "2.4.5"
   driver:
+    envSecretKeyRefs:
+      ADMITWARE_USERNAME:
+        name: admitware-test-db
+        key: username
+      ADMITWARE_PASSWORD:
+        name: admitware-test-db
+        key: password
+      ADMITWARE_HOST:
+        name: admitware-test-db
+        key: host
+      ADMITWARE_PORT:
+        name: admitware-test-db
+        key: port
+    serviceAccount: spark
     env:
-      # - name: SPARK_APPLICATION_PYTHON_LOCATION
-      #   value: /app/s3.test.py
-      # - name: SPARK_MASTER_NAME
-      #   value: my-spark-cluster.spark.svc
-    cores: 0.2
-    coreLimit: 200m
+      - name: ADMITWARE_DATABASE
+        value: Admissions
+      - name: ADMITWARE_TABLE
+        value: ACAdmitLetter
+      - name: S3_FOLDER_NAME
+        value: nu-data-lake-test/admitware/admit-letters
+    # cores: 1
+    # coreLimit: 200m
   executor:
+    envSecretKeyRefs:
+      ADMITWARE_USERNAME:
+        name: admitware-test-db
+        key: username
+      ADMITWARE_PASSWORD:
+        name: admitware-test-db
+        key: password
+      ADMITWARE_HOST:
+        name: admitware-test-db
+        key: host
+      ADMITWARE_PORT:
+        name: admitware-test-db
+        key: port
+    env:
+      - name: ADMITWARE_DATABASE
+        value: Admissions
+      - name: ADMITWARE_TABLE
+        value: ACAdmitLetter
+      - name: S3_FOLDER_NAME
+        value: nu-data-lake-test/admitware/admit-letters
     instances: 1
-    cores: 1
-    coreLimit: 400m
+    # cores: 1
+    # coreLimit: 400m
   labels:
     foo: bar
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spark
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: spark-role
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: spark-role-binding
+subjects:
+- kind: ServiceAccount
+  name: spark
+roleRef:
+  kind: Role
+  name: spark-role
+  apiGroup: rbac.authorization.k8s.io

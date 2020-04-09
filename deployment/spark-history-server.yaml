@@ -1,0 +1,34 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: spark-master-1-pv
+  labels:
+    sparkClusterName: my-spark-cluster
+    myCustomLabel: my-spark-cluster-history
+spec:
+  capacity:
+    storage: 0.3Gi
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: "/tmp/spark-events"
+---
+apiVersion: radanalytics.io/v1
+kind: SparkHistoryServer
+metadata:
+  name: my-history-server
+spec:
+  type: sharedVolume
+  sharedVolume:
+    size: 0.3Gi
+    mountPath: /history/spark-events
+    matchLabels:
+      sparkClusterName: my-spark-cluster
+      myCustomLabel: my-spark-cluster-history
+  expose: true
+  logDirectory: /history/spark-events
+  updateInterval: 10
+  retainedApplications: 50
+  cleaner:
+    enabled: true
+#    interval: 10

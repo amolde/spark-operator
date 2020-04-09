@@ -1,0 +1,50 @@
+# apiVersion: radanalytics.io/v1
+# kind: SparkApplication
+# metadata:
+#   name: my-spark-app
+# spec:
+#   image: quay.io/radanalyticsio/openshift-spark:2.4.5-2
+#   mainApplicationFile: local:///opt/spark/examples/jars/spark-examples_2.11-2.4.5.jar
+#   mainClass: org.apache.spark.examples.SparkPi
+#   sleep: 300 # repeat each 5 minutes
+#   driver:
+#     cores: 0.2
+#     coreLimit: 200m
+#   executor:
+#     instances: 2
+#     cores: 1
+#     coreLimit: 400m
+#   labels:
+#     foo: bar
+# ---
+apiVersion: radanalytics.io/v1
+kind: SparkApplication
+metadata:
+  name: my-example
+spec:
+  hadoopConf:
+    "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.AssumedRoleCredentialProvider"
+    "fs.s3a.assumed.role.arn": "arn:aws:iam::209299999084:role/ep-test-compute-node-role"
+  image: docker-registry.default.svc:5000/spark/spark-applications@sha256:896915efab30269c7a2a56b5800932f386e2c6828bcab166003e1d005ca0b47a
+  # image: quay.io/radanalyticsio/openshift-spark:2.4.5-2
+  # image: "gcr.io/spark-operator/spark-py:v2.4.5"
+  type: Python
+  pythonVersion: "3"
+  mode: cluster
+  imagePullPolicy: Always
+  # mainApplicationFile: local:///opt/spark/examples/src/main/python/pi.py
+  mainApplicationFile: s3a://nu-data-lake-test/spark-applications/s3.test.py
+  driver:
+    env:
+      # - name: SPARK_APPLICATION_PYTHON_LOCATION
+      #   value: /app/s3.test.py
+      # - name: SPARK_MASTER_NAME
+      #   value: my-spark-cluster.spark.svc
+    cores: 0.2
+    coreLimit: 200m
+  executor:
+    instances: 1
+    cores: 1
+    coreLimit: 400m
+  labels:
+    foo: bar

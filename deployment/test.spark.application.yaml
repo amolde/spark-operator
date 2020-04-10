@@ -22,6 +22,8 @@ kind: SparkApplication
 metadata:
   name: my-example
 spec:
+  sparkConf:
+    spark.sql.files.maxRecordsPerFile: 100000
   hadoopConf:
     "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.AssumedRoleCredentialProvider"
     "fs.s3a.assumed.role.arn": "arn:aws:iam::209299999084:role/ep-test-compute-node-role"

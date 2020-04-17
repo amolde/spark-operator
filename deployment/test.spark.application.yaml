@@ -17,82 +17,153 @@
 #   labels:
 #     foo: bar
 # ---
+# ---
+# apiVersion: "sparkoperator.k8s.io/v1beta2"
+# kind: SparkApplication
+# metadata:
+#   name: banner-to-s3
+# spec:
+#   sparkConf:
+#     spark.sql.files.maxRecordsPerFile: "100000000"
+#   hadoopConf:
+#     "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.AssumedRoleCredentialProvider"
+#     "fs.s3a.assumed.role.arn": "arn:aws:iam::209299999084:role/ep-test-compute-node-role"
+#   image: docker-registry.default.svc:5000/spark-operator/spark-applications:latest
+#   type: Python
+#   pythonVersion: "3"
+#   mode: cluster
+#   imagePullPolicy: Always
+#   mainApplicationFile: s3a://nu-data-lake-test/spark-applications/banner.s3.test.py
+#   sparkVersion: "2.4.5"
+#   driver:
+#     envSecretKeyRefs:
+#       BANNER_USERNAME:
+#         name: banner-deva8-db
+#         key: username
+#       BANNER_PASSWORD:
+#         name: banner-deva8-db
+#         key: password
+#       BANNER_HOST:
+#         name: banner-deva8-db
+#         key: host
+#       BANNER_PORT:
+#         name: banner-deva8-db
+#         key: port
+#     serviceAccount: spark
+#     env:
+#       - name: BANNER_DATABASE
+#         value: DEVA8
+#       - name: BANNER_QUERY
+#         value: SELECT spriden_id, shrlgpa_gpa FROM shrlgpa, spriden WHERE shrlgpa_pidm = spriden_pidm AND spriden_change_ind IS NULL AND shrlgpa_gpa_type_ind = 'O'
+#       - name: S3_FOLDER_NAME
+#         value: nu-data-lake-test/banner/graduation
+#     # cores: 1
+#     # coreLimit: 200m
+#   executor:
+#     envSecretKeyRefs:
+#       BANNER_USERNAME:
+#         name: banner-deva8-db
+#         key: username
+#       BANNER_PASSWORD:
+#         name: banner-deva8-db
+#         key: password
+#       BANNER_HOST:
+#         name: banner-deva8-db
+#         key: host
+#       BANNER_PORT:
+#         name: banner-deva8-db
+#         key: port
+#     env:
+#       - name: BANNER_DATABASE
+#         value: DEVA8
+#       - name: BANNER_QUERY
+#         value: SELECT spriden_id, shrlgpa_gpa FROM shrlgpa, spriden WHERE shrlgpa_pidm = spriden_pidm AND spriden_change_ind IS NULL AND shrlgpa_gpa_type_ind = 'O'
+#       - name: S3_FOLDER_NAME
+#         value: nu-data-lake-test/banner/graduation
+#     instances: 1
+#     # cores: 1
+#     # coreLimit: 400m
+#   labels:
+#     foo: bar
+# ---
+# apiVersion: "sparkoperator.k8s.io/v1beta2"
+# kind: SparkApplication
+# metadata:
+#   name: my-example
+# spec:
+#   sparkConf:
+#     spark.sql.files.maxRecordsPerFile: "100000"
+#   hadoopConf:
+#     "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.AssumedRoleCredentialProvider"
+#     "fs.s3a.assumed.role.arn": "arn:aws:iam::209299999084:role/ep-test-compute-node-role"
+#   image: docker-registry.default.svc:5000/spark-operator/spark-applications:latest
+#   # image: quay.io/radanalyticsio/openshift-spark:2.4.5-2
+#   # image: "gcr.io/spark-operator/spark-py:v2.4.5"
+#   type: Python
+#   pythonVersion: "3"
+#   mode: cluster
+#   imagePullPolicy: Always
+#   # mainApplicationFile: local:///opt/spark/examples/src/main/python/pi.py
+#   mainApplicationFile: s3a://nu-data-lake-test/spark-applications/admitware.s3.test.py
+#   sparkVersion: "2.4.5"
+#   driver:
+#     envSecretKeyRefs:
+#       ADMITWARE_USERNAME:
+#         name: admitware-test-db
+#         key: username
+#       ADMITWARE_PASSWORD:
+#         name: admitware-test-db
+#         key: password
+#       ADMITWARE_HOST:
+#         name: admitware-test-db
+#         key: host
+#       ADMITWARE_PORT:
+#         name: admitware-test-db
+#         key: port
+#     serviceAccount: spark
+#     env:
+#       - name: ADMITWARE_DATABASE
+#         value: Admissions
+#       - name: ADMITWARE_TABLE
+#         value: ACAdmitLetter
+#       - name: S3_FOLDER_NAME
+#         value: nu-data-lake-test/admitware/admit-letters
+#     # cores: 1
+#     # coreLimit: 200m
+#   executor:
+#     envSecretKeyRefs:
+#       ADMITWARE_USERNAME:
+#         name: admitware-test-db
+#         key: username
+#       ADMITWARE_PASSWORD:
+#         name: admitware-test-db
+#         key: password
+#       ADMITWARE_HOST:
+#         name: admitware-test-db
+#         key: host
+#       ADMITWARE_PORT:
+#         name: admitware-test-db
+#         key: port
+#     env:
+#       - name: ADMITWARE_DATABASE
+#         value: Admissions
+#       - name: ADMITWARE_TABLE
+#         value: ACAdmitLetter
+#       - name: S3_FOLDER_NAME
+#         value: nu-data-lake-test/admitware/admit-letters
+#     instances: 1
+#     # cores: 1
+#     # coreLimit: 400m
+#   labels:
+#     foo: bar
 ---
 apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
-  name: banner-to-s3
+  name: move-commonapp-to-s3
 spec:
   sparkConf:
-    spark.sql.files.maxRecordsPerFile: "100000000"
-  hadoopConf:
-    "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.AssumedRoleCredentialProvider"
-    "fs.s3a.assumed.role.arn": "arn:aws:iam::209299999084:role/ep-test-compute-node-role"
-  image: docker-registry.default.svc:5000/spark-operator/spark-applications:latest
-  type: Python
-  pythonVersion: "3"
-  mode: cluster
-  imagePullPolicy: Always
-  mainApplicationFile: s3a://nu-data-lake-test/spark-applications/banner.s3.test.py
-  sparkVersion: "2.4.5"
-  driver:
-    envSecretKeyRefs:
-      BANNER_USERNAME:
-        name: banner-deva8-db
-        key: username
-      BANNER_PASSWORD:
-        name: banner-deva8-db
-        key: password
-      BANNER_HOST:
-        name: banner-deva8-db
-        key: host
-      BANNER_PORT:
-        name: banner-deva8-db
-        key: port
-    serviceAccount: spark
-    env:
-      - name: BANNER_DATABASE
-        value: DEVA8
-      - name: BANNER_QUERY
-        value: SELECT spriden_id, shrlgpa_gpa FROM shrlgpa, spriden WHERE shrlgpa_pidm = spriden_pidm AND spriden_change_ind IS NULL AND shrlgpa_gpa_type_ind = 'O'
-      - name: S3_FOLDER_NAME
-        value: nu-data-lake-test/banner/graduation
-    # cores: 1
-    # coreLimit: 200m
-  executor:
-    envSecretKeyRefs:
-      BANNER_USERNAME:
-        name: banner-deva8-db
-        key: username
-      BANNER_PASSWORD:
-        name: banner-deva8-db
-        key: password
-      BANNER_HOST:
-        name: banner-deva8-db
-        key: host
-      BANNER_PORT:
-        name: banner-deva8-db
-        key: port
-    env:
-      - name: BANNER_DATABASE
-        value: DEVA8
-      - name: BANNER_QUERY
-        value: SELECT spriden_id, shrlgpa_gpa FROM shrlgpa, spriden WHERE shrlgpa_pidm = spriden_pidm AND spriden_change_ind IS NULL AND shrlgpa_gpa_type_ind = 'O'
-      - name: S3_FOLDER_NAME
-        value: nu-data-lake-test/banner/graduation
-    instances: 1
-    # cores: 1
-    # coreLimit: 400m
-  labels:
-    foo: bar
----
-apiVersion: "sparkoperator.k8s.io/v1beta2"
-kind: SparkApplication
-metadata:
-  name: my-example
-spec:
-  sparkConf:
-    spark.sql.files.maxRecordsPerFile: "100000"
+    spark.sql.files.maxRecordsPerFile: "10000"
   hadoopConf:
     "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.AssumedRoleCredentialProvider"
     "fs.s3a.assumed.role.arn": "arn:aws:iam::209299999084:role/ep-test-compute-node-role"
@@ -104,7 +175,7 @@ spec:
   mode: cluster
   imagePullPolicy: Always
   # mainApplicationFile: local:///opt/spark/examples/src/main/python/pi.py
-  mainApplicationFile: s3a://nu-data-lake-test/spark-applications/admitware.s3.test.py
+  mainApplicationFile: s3a://nu-data-lake-test/spark-applications/admitware.commonapp.s3.py
   sparkVersion: "2.4.5"
   driver:
     envSecretKeyRefs:
@@ -127,7 +198,7 @@ spec:
       - name: ADMITWARE_TABLE
         value: ACAdmitLetter
       - name: S3_FOLDER_NAME
-        value: nu-data-lake-test/admitware/admit-letters
+        value: nu-data-lake-test/admitware/commonapps-2019
     # cores: 1
     # coreLimit: 200m
   executor:
@@ -150,8 +221,8 @@ spec:
       - name: ADMITWARE_TABLE
         value: ACAdmitLetter
       - name: S3_FOLDER_NAME
-        value: nu-data-lake-test/admitware/admit-letters
-    instances: 1
+        value: nu-data-lake-test/admitware/commonapps-2019
+    instances: 5
     # cores: 1
     # coreLimit: 400m
   labels:
